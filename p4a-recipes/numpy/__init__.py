@@ -15,16 +15,19 @@ class NumpyRecipe(MesonRecipe):
         options = super().get_recipe_meson_options(arch)
         options["binaries"]["python"] = self.ctx.python_recipe.python_exe
         options["binaries"]["python3"] = self.ctx.python_recipe.python_exe
-        options["properties"]["longdouble_format"] = (
-            "IEEE_DOUBLE_LE" if arch.arch in ["armeabi-v7a", "x86"]
-            else "IEEE_QUAD_LE"
-        )
+        # Use IEEE_DOUBLE_LE for all Android arches to avoid clang-14 ICE
+        # in half-to-longdouble cast functions. Android doesn't truly support
+        # 128-bit long double at the Python level anyway.
+        options["properties"]["longdouble_format"] = "IEEE_DOUBLE_LE"
         return options
 
     def get_recipe_env(self, arch, **kwargs):
         env = super().get_recipe_env(arch, **kwargs)
         env["_PYTHON_HOST_PLATFORM"] = arch.command_prefix
         env["NPY_DISABLE_SVML"] = "1"
+        # Reduce optimization to -O1 to work around NDK r25b clang-14
+        # internal compiler error (exit code 70) in half-float cast code
+        env["CFLAGS"] = env.get("CFLAGS", "") + " -O1"
         env["TARGET_PYTHON_EXE"] = join(
             Recipe.get_recipe("python3", self.ctx).get_build_dir(arch.arch),
             "android-build", "python"
