@@ -53,8 +53,8 @@ android.minapi = 24
 android.ndk = 28c
 
 # (str) Android SDK / NDK paths
-android.sdk_path = /Users/juhankim/.buildozer/android/platform/android-sdk
-android.ndk_path = /Users/juhankim/.buildozer/android/platform/android-ndk-r28c
+#android.sdk_path =
+#android.ndk_path =
 
 # (int) Android NDK API to use. This is the minimum API your app will support.
 android.ndk_api = 24
