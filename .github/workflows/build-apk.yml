@@ -1,0 +1,47 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git python3-dev \
+            ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+            libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev \
+            zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base \
+            libunwind-dev autoconf automake libtool pkg-config \
+            zip unzip openjdk-17-jdk cmake
+
+      - name: Install buildozer and deps
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.36
+
+      - name: Build APK
+        run: |
+          yes | buildozer android debug 2>&1 | tail -100
+        env:
+          BUILDOZER_WARN_ON_ROOT: "0"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-optimizer-apk
+          path: bin/*.apk
