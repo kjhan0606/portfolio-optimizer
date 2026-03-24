@@ -4,9 +4,9 @@ import shutil
 
 
 class NumpyRecipe(MesonRecipe):
-    version = '1.26.4'
+    version = '2.4.3'
     url = 'https://github.com/numpy/numpy/releases/download/v{version}/numpy-{version}.tar.gz'
-    hostpython_prerequisites = ["Cython>=3.0.6", "numpy==1.26.4"]
+    hostpython_prerequisites = ["Cython>=3.0.6", "numpy==2.4.3"]
     extra_build_args = ['-Csetup-args=-Dblas=none', '-Csetup-args=-Dlapack=none']
     need_stl_shared = True
     min_ndk_api_support = 24
