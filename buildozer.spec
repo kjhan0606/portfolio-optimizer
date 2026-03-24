@@ -50,7 +50,7 @@ android.api = 33
 android.minapi = 24
 
 # (str) Android NDK version to use
-android.ndk = 28c
+android.ndk = 25b
 
 # (str) Android SDK / NDK paths
 #android.sdk_path =
