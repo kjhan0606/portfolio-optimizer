@@ -22,7 +22,7 @@ source.exclude_dirs = tests, bin, venv, .buildozer, pages, __pycache__
 version = 1.0
 
 # (list) Application requirements
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,numpy,pandas,matplotlib,requests,certifi,charset-normalizer,idna,urllib3,yfinance,lxml,beautifulsoup4,multitasking,peewee,appdirs,frozendict,pytz,six,cycler,kiwisolver,pyparsing,python-dateutil
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,numpy==1.24.4,pandas,matplotlib,requests,certifi,charset-normalizer,idna,urllib3,yfinance,lxml,beautifulsoup4,multitasking,peewee,appdirs,frozendict,pytz,six,cycler,kiwisolver,pyparsing,python-dateutil
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/data/presplash.png
