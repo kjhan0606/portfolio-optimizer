@@ -5,6 +5,7 @@ from pythonforandroid.recipes.python3 import Python3Recipe as _Python3Recipe
 class Python3Recipe(_Python3Recipe):
     version = '3.12.7'
     url = 'https://www.python.org/ftp/python/{version}/Python-{version}.tgz'
+    patches = []  # override parent patches that don't apply to 3.12
 
 
 recipe = Python3Recipe()
