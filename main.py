@@ -30,7 +30,111 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.spinner import MDSpinner
 
 import numpy as np
-import pandas as pd
+# pandas-free helpers for Android compatibility
+class SimpleSeries:
+    """Minimal pandas.Series replacement."""
+    def __init__(self, values, index=None):
+        self.values = np.array(values, dtype=float)
+        self.index = index if index is not None else list(range(len(values)))
+    def __len__(self): return len(self.values)
+    def __getitem__(self, key): return self.values[key]
+    def __le__(self, other): return self.values <= other
+    def __array__(self, dtype=None): return self.values if dtype is None else self.values.astype(dtype)
+    def __sub__(self, other):
+        if isinstance(other, SimpleSeries):
+            return SimpleSeries(self.values - other.values, self.index)
+        return SimpleSeries(self.values - other, self.index)
+    def __truediv__(self, other):
+        if isinstance(other, SimpleSeries):
+            return SimpleSeries(self.values / other.values, self.index)
+        return SimpleSeries(self.values / other, self.index)
+    def pct_change(self):
+        v = self.values
+        pct = np.empty_like(v); pct[0] = np.nan
+        pct[1:] = (v[1:] - v[:-1]) / v[:-1]
+        return SimpleSeries(pct, self.index)
+    def dropna(self):
+        mask = ~np.isnan(self.values)
+        return SimpleSeries(self.values[mask], [self.index[i] for i in range(len(self.index)) if mask[i]])
+    def cummax(self): return SimpleSeries(np.maximum.accumulate(self.values), self.index)
+    def std(self): return np.nanstd(self.values, ddof=1)
+    def mean(self): return np.nanmean(self.values)
+    def min(self): return np.nanmin(self.values)
+    @property
+    def iloc(self): return self.values
+
+class SimpleDataFrame:
+    """Minimal pandas.DataFrame replacement using dict of arrays."""
+    def __init__(self, data_dict):
+        self.columns = list(data_dict.keys())
+        # align to shortest length
+        min_len = min(len(v) for v in data_dict.values()) if data_dict else 0
+        self._data = {k: np.array(v[:min_len], dtype=float) for k, v in data_dict.items()}
+        self._len = min_len
+        self._index = list(range(min_len))
+    def __len__(self): return self._len
+    def __getitem__(self, key):
+        if isinstance(key, list):
+            return SimpleDataFrame({k: self._data[k] for k in key})
+        return SimpleSeries(self._data[key], self._index)
+    @property
+    def values(self):
+        return np.column_stack([self._data[c] for c in self.columns])
+    @property
+    def iloc(self): return self
+    @property
+    def index(self): return self._index
+    def set_index(self, idx):
+        self._index = idx
+        return self
+    def dropna(self, how='all'):
+        if how == 'all':
+            mask = np.ones(self._len, dtype=bool)
+            for c in self.columns:
+                mask &= np.isnan(self._data[c])
+            mask = ~mask
+            new_data = {c: self._data[c][mask] for c in self.columns}
+            df = SimpleDataFrame(new_data)
+            df._index = [self._index[i] for i in range(self._len) if mask[i]] if len(self._index) == self._len else list(range(int(mask.sum())))
+            return df
+        return self
+    def ffill(self):
+        new_data = {}
+        for c in self.columns:
+            arr = self._data[c].copy()
+            for i in range(1, len(arr)):
+                if np.isnan(arr[i]):
+                    arr[i] = arr[i-1]
+            new_data[c] = arr
+        df = SimpleDataFrame(new_data)
+        df._index = self._index
+        return df
+    def pct_change(self):
+        new_data = {}
+        for c in self.columns:
+            v = self._data[c]
+            pct = np.empty_like(v); pct[0] = np.nan
+            pct[1:] = (v[1:] - v[:-1]) / v[:-1]
+            new_data[c] = pct
+        df = SimpleDataFrame(new_data)
+        df._index = self._index
+        return df
+    def corr(self):
+        vals = self.values
+        return np.corrcoef(vals[:, :].T)
+    def mean(self):
+        return np.array([np.nanmean(self._data[c]) for c in self.columns])
+    def cov(self):
+        vals = np.column_stack([self._data[c] for c in self.columns])
+        mask = ~np.any(np.isnan(vals), axis=1)
+        return np.cov(vals[mask].T)
+
+# pandas compatibility aliases
+class _pd:
+    DataFrame = SimpleDataFrame
+    Series = SimpleSeries
+    MultiIndex = type(None)  # dummy
+pd = _pd()
 
 import matplotlib
 matplotlib.use('Agg')
