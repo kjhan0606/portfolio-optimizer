@@ -16,7 +16,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base libunwind-dev autoconf automake libtool libtool-bin libltdl-dev gettext autopoint pkg-config zip unzip openjdk-17-jdk cmake lld
+          sudo apt-get install -y build-essential git python3-dev ffmpeg zlib1g-dev autoconf automake libtool libtool-bin libltdl-dev gettext autopoint pkg-config zip unzip openjdk-17-jdk cmake lld
       - name: Install buildozer
         run: |
           pip install --upgrade pip
@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-v2-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
             buildozer-${{ runner.os }}-
       - name: Build APK
