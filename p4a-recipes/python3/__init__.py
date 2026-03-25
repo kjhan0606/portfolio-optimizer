@@ -7,5 +7,9 @@ class Python3Recipe(_Python3Recipe):
     url = 'https://www.python.org/ftp/python/{version}/Python-{version}.tgz'
     patches = []  # override parent patches that don't apply to 3.12
 
+    def apply_patches(self, arch):
+        """Skip all patches — parent patches don't apply to 3.12."""
+        pass
+
 
 recipe = Python3Recipe()
