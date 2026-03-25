@@ -85,7 +85,7 @@ osx.kivy_version = 2.3.0
 #
 
 # (str) python-for-android branch to use, defaults to master
-p4a.branch = v2024.01.21
+p4a.branch = develop
 
 # (str) Bootstrap to use for android builds
 p4a.bootstrap = sdl2
